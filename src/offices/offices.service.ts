@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Offices } from 'src/schemas/offices.schema';
 import { AddOfficesDto } from './dto/add-offices.dto';
+import { UpdateOfficesDto } from './dto/update-offices.dto';
 
 @Injectable()
 export class OfficesService {
@@ -16,12 +17,12 @@ export class OfficesService {
   }
 
   async addOffices(addOfficesData: AddOfficesDto) {
-    const isPhoneNumberDuplicate = await this.isPhoneNumberDuplicate(
-      addOfficesData.adminPhoneNumber,
+    const isOfficesNameDuplicate = await this.isOfficesNameDuplicate(
+      addOfficesData.officesName,
     );
-    if (isPhoneNumberDuplicate)
+    if (isOfficesNameDuplicate)
       throw new HttpException(
-        'Phone number is duplicate',
+        'offices name is duplicate',
         HttpStatus.BAD_REQUEST,
       );
 
@@ -31,10 +32,12 @@ export class OfficesService {
     return tempData;
   }
 
-  async isPhoneNumberDuplicate(phoneNumber: string): Promise<boolean> {
-    const userWithPhoneNumber = await this.officesModel
-      .findOne({ adminPhoneNumber: phoneNumber })
+  async updateOffices(updateOfficesData: UpdateOfficesDto) {}
+
+  async isOfficesNameDuplicate(officesName: string): Promise<boolean> {
+    const officesDuplicate = await this.officesModel
+      .findOne({ officesName })
       .exec();
-    return !!userWithPhoneNumber;
+    return !!officesDuplicate;
   }
 }
