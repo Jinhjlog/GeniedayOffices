@@ -2,8 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Offices } from './offices.schema';
-import { AddOfficesDto } from './dto/add-offices.dto';
-import { UpdateOfficesDto } from './dto/update-offices.dto';
+import { ReadOnlyOfficesDto } from './dto/offices.dto';
 
 @Injectable()
 export class OfficesRepository {
@@ -11,7 +10,7 @@ export class OfficesRepository {
     @InjectModel(Offices.name) private readonly officeModel: Model<Offices>,
   ) {}
 
-  async getOfficesList() {
+  async getOfficesList(): Promise<Offices[]> {
     return await this.officeModel.find();
   }
 
@@ -20,13 +19,13 @@ export class OfficesRepository {
     return !!result;
   }
 
-  async createOffices(addOfficesData: AddOfficesDto) {
+  async createOffices(createOfficesDto: ReadOnlyOfficesDto) {
     return await this.officeModel.create({
-      ...addOfficesData,
+      ...createOfficesDto,
     });
   }
 
-  async updateOffices(updateOfficesData: UpdateOfficesDto) {
+  async updateOffices(updateOfficesData: ReadOnlyOfficesDto) {
     const result = await this.officeModel.updateOne(
       {
         officesName: updateOfficesData.officesName,

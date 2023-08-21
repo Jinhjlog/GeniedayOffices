@@ -1,47 +1,43 @@
-import {
-  Injectable,
-  HttpException,
-  HttpStatus,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Offices } from 'src/offices/offices.schema';
-import { AddOfficesDto } from './dto/add-offices.dto';
-import { UpdateOfficesDto } from './dto/update-offices.dto';
 import { OfficesRepository } from './offices.repository';
+import { ReadOnlyOfficesDto } from './dto/offices.dto';
 
 @Injectable()
 export class OfficesService {
   constructor(private readonly officesRepository: OfficesRepository) {}
 
-  async getOffices() {
-    const officesList = await this.officesRepository.getOfficesList();
-    return officesList;
+  async getOffices(): Promise<Offices[]> {
+    return await this.officesRepository.getOfficesList();
   }
 
-  async createOffices(addOfficesData: AddOfficesDto) {
+  async createOffices(createOfficesData: ReadOnlyOfficesDto) {
     const isOfficesNameDuplicate =
       await this.officesRepository.existsByOfficesName(
-        addOfficesData.officesName,
+        createOfficesData.officesName,
       );
     if (isOfficesNameDuplicate)
       throw new UnauthorizedException('offices name is duplicate');
 
-    const createOfficesData = await this.officesRepository.createOffices(
-      addOfficesData,
+    const dbResult = await this.officesRepository.createOffices(
+      createOfficesData,
     );
-    return createOfficesData;
+    return dbResult.officesReadOnlyData;
   }
 
-  async updateOffices(updateOfficesData: UpdateOfficesDto) {
+  async updateOffices(
+    updateOfficesData: ReadOnlyOfficesDto,
+  ): Promise<ReadOnlyOfficesDto> {
     const isOfficesNameExist = await this.officesRepository.existsByOfficesName(
       updateOfficesData.officesName,
     );
     if (!isOfficesNameExist) {
       throw new UnauthorizedException('offices name is not exists');
     }
-    return await this.officesRepository.updateOffices(updateOfficesData);
+    const dbResult = await this.officesRepository.updateOffices(
+      updateOfficesData,
+    );
+    return dbResult.acknowledged ? updateOfficesData : null;
   }
 
   async deleteOffices(deleteOfficesName: string) {
@@ -52,6 +48,13 @@ export class OfficesService {
       throw new UnauthorizedException('offices name is not exists');
     }
 
-    return await this.officesRepository.deleteOffices(deleteOfficesName);
+    const dbResult = await this.officesRepository.deleteOffices(
+      deleteOfficesName,
+    );
+    return dbResult.acknowledged
+      ? {
+          officesName: deleteOfficesName,
+        }
+      : null;
   }
 }
