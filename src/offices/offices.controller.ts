@@ -6,7 +6,6 @@ import {
   Put,
   Delete,
   Param,
-  UseInterceptors,
 } from '@nestjs/common';
 import { OfficesService } from './offices.service';
 import { ApiResponse, ApiOperation } from '@nestjs/swagger';
@@ -73,7 +72,7 @@ export class OfficesController {
   })
   @ApiResponse({
     status: 401,
-    description: 'offices name is not exists',
+    description: '해당 구청이 존재하지 않음',
   })
   @Delete(':officesName')
   @ApiOperation({ summary: '구청 삭제' })
