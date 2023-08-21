@@ -11,7 +11,7 @@ import { ConfigService } from '@nestjs/config';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    MongooseModule.forRoot(new ConfigService().get<string>('DATABASE_URL')),
+    MongooseModule.forRoot(process.env.DATABASE_URL),
   ],
   controllers: [AppController],
   providers: [AppService],

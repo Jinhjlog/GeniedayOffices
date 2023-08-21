@@ -1,43 +1,57 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Offices } from 'src/schemas/offices.schema';
+import { Offices } from 'src/offices/offices.schema';
 import { AddOfficesDto } from './dto/add-offices.dto';
 import { UpdateOfficesDto } from './dto/update-offices.dto';
+import { OfficesRepository } from './offices.repository';
 
 @Injectable()
 export class OfficesService {
-  constructor(
-    @InjectModel(Offices.name) private officesModel: Model<Offices>,
-  ) {}
+  constructor(private readonly officesRepository: OfficesRepository) {}
 
   async getOffices() {
-    const officesList = await this.officesModel.find();
+    const officesList = await this.officesRepository.getOfficesList();
     return officesList;
   }
 
-  async addOffices(addOfficesData: AddOfficesDto) {
-    const isOfficesNameDuplicate = await this.isOfficesNameDuplicate(
-      addOfficesData.officesName,
-    );
-    if (isOfficesNameDuplicate)
-      throw new HttpException(
-        'offices name is duplicate',
-        HttpStatus.BAD_REQUEST,
+  async createOffices(addOfficesData: AddOfficesDto) {
+    const isOfficesNameDuplicate =
+      await this.officesRepository.existsByOfficesName(
+        addOfficesData.officesName,
       );
+    if (isOfficesNameDuplicate)
+      throw new UnauthorizedException('offices name is duplicate');
 
-    const tempData = await this.officesModel.create({
-      ...addOfficesData,
-    });
-    return tempData;
+    const createOfficesData = await this.officesRepository.createOffices(
+      addOfficesData,
+    );
+    return createOfficesData;
   }
 
-  async updateOffices(updateOfficesData: UpdateOfficesDto) {}
+  async updateOffices(updateOfficesData: UpdateOfficesDto) {
+    const isOfficesNameExist = await this.officesRepository.existsByOfficesName(
+      updateOfficesData.officesName,
+    );
+    if (!isOfficesNameExist) {
+      throw new UnauthorizedException('offices name is not exists');
+    }
+    return await this.officesRepository.updateOffices(updateOfficesData);
+  }
 
-  async isOfficesNameDuplicate(officesName: string): Promise<boolean> {
-    const officesDuplicate = await this.officesModel
-      .findOne({ officesName })
-      .exec();
-    return !!officesDuplicate;
+  async deleteOffices(deleteOfficesName: string) {
+    const isOfficesNameExist = await this.officesRepository.existsByOfficesName(
+      deleteOfficesName,
+    );
+    if (!isOfficesNameExist) {
+      throw new UnauthorizedException('offices name is not exists');
+    }
+
+    return await this.officesRepository.deleteOffices(deleteOfficesName);
   }
 }

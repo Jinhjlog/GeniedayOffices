@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Put, Delete } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+} from '@nestjs/common';
 import { OfficesService } from './offices.service';
 import { AddOfficesDto } from './dto/add-offices.dto';
 import { UpdateOfficesDto } from './dto/update-offices.dto';
@@ -14,7 +22,7 @@ export class OfficesController {
 
   @Post('')
   addOffices(@Body() addOfficesData: AddOfficesDto) {
-    return this.officesService.addOffices(addOfficesData);
+    return this.officesService.createOffices(addOfficesData);
   }
 
   @Put('')
@@ -22,6 +30,8 @@ export class OfficesController {
     return this.officesService.updateOffices(updateOfficesData);
   }
 
-  @Delete('')
-  deleteOffices() {}
+  @Delete(':officesName')
+  deleteOffices(@Param('officesName') officesName: string) {
+    return this.officesService.deleteOffices(officesName);
+  }
 }
