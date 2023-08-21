@@ -34,6 +34,10 @@ export class OfficesController {
     type: ReadOnlyOfficesDto,
   })
   @ApiResponse({
+    status: 400,
+    description: '전화번호 형식이 올바르지 않음',
+  })
+  @ApiResponse({
     status: 401,
     description: '구청 이름 중복',
   })
@@ -47,6 +51,10 @@ export class OfficesController {
     status: 200,
     description: '구청 정보 수정 성공',
     type: ReadOnlyOfficesDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: '전화번호 형식이 올바르지 않음',
   })
   @ApiResponse({
     status: 401,

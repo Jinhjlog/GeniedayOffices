@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  HttpException,
+} from '@nestjs/common';
 import { Offices } from 'src/offices/offices.schema';
 import { OfficesRepository } from './offices.repository';
 import { ReadOnlyOfficesDto } from './dto/offices.dto';
@@ -12,6 +16,10 @@ export class OfficesService {
   }
 
   async createOffices(createOfficesData: ReadOnlyOfficesDto) {
+    if (!(await this.phoneValidation(createOfficesData.adminPhoneNumber))) {
+      throw new HttpException('phone number is not valid', 400);
+    }
+
     const isOfficesNameDuplicate =
       await this.officesRepository.existsByOfficesName(
         createOfficesData.officesName,
@@ -34,6 +42,11 @@ export class OfficesService {
     if (!isOfficesNameExist) {
       throw new UnauthorizedException('offices name is not exists');
     }
+
+    if (!(await this.phoneValidation(updateOfficesData.adminPhoneNumber))) {
+      throw new HttpException('phone number is not valid', 400);
+    }
+
     const dbResult = await this.officesRepository.updateOffices(
       updateOfficesData,
     );
@@ -56,5 +69,9 @@ export class OfficesService {
           officesName: deleteOfficesName,
         }
       : null;
+  }
+
+  async phoneValidation(phoneNumber: string) {
+    return /^01\d{8,9}$/.test(phoneNumber);
   }
 }
