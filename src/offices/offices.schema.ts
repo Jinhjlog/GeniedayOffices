@@ -1,9 +1,13 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory, SchemaOptions } from '@nestjs/mongoose';
 import { IsNotEmpty, Validate, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
 
-@Schema()
+const options: SchemaOptions = {
+  timestamps: true,
+};
+
+@Schema(options)
 export class Offices extends Document {
   @ApiProperty({
     example: '부산진구청',
