@@ -15,8 +15,8 @@ async function bootstrap() {
 
   // swagger
   const config = new DocumentBuilder()
-    .setTitle('C.I.C')
-    .setDescription('cat')
+    .setTitle('genieDayOffices')
+    .setDescription('genieDayOffices Api')
     .setVersion('1.0.0')
     .build();
   const document: OpenAPIObject = SwaggerModule.createDocument(app, config);
